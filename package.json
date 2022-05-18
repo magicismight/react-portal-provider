@@ -1,0 +1,49 @@
+{
+  "name": "react-portal-provider",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A quick starter template for typescript project",
+  "scripts": {
+    "test": "jest --coverage",
+    "lint": "eslint ./src --ext .ts",
+    "build": "run-p test clean lint && run-p build:cjs build:esm",
+    "build:cjs": "tsc --module commonjs --declaration --outDir ./dist/lib",
+    "build:esm": "tsc --module esnext --declaration --outDir ./dist/esm",
+    "prepublishOnly": "npm run build",
+    "clean": "find ./dist -depth 1 ! -name package.json ! -name README.md  | xargs rm -rf"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "react-dom": "~17",
+    "react-test-renderer": "~17",
+    "@types/jest": "^26.0.24",
+    "@typescript-eslint/eslint-plugin": "^4.29.0",
+    "@typescript-eslint/parser": "^4.29.0",
+    "eslint": "^7.32.0",
+    "eslint-config-alloy": "^4.2.0",
+    "husky": "4.3.8",
+    "jest": "^27.0.6",
+    "lint-staged": "9.4.3",
+    "prettier": "^2.2.1",
+    "ts-jest": "^27.0.4",
+    "typescript": "^4.6.4",
+    "npm-run-all": "^4.1.5",
+    "@testing-library/react-hooks": "7.0.2",
+    "@testing-library/react": "^12.1.2",
+    "flush-promises": "1.0.2"
+  },
+  "lint-staged": {
+    "*.{ts}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "dependencies": {
+    "react": "~17"
+  }
+}

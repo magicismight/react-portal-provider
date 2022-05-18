@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "strict": true,
+    "allowJs": false,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "importHelpers": true,
+    "downlevelIteration": true,
+    "resolveJsonModule": true,
+    "lib": ["es2015", "dom"],
+    "outDir": "./dist",
+    "jsx": "react-jsx"
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
+}
