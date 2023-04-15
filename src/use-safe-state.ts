@@ -1,4 +1,11 @@
-import { useState, useRef, useEffect, Dispatch, SetStateAction, useCallback } from 'react';
+import {
+  useState,
+  useRef,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+  useCallback
+} from 'react';
 
 /**
  * Prevent React setState warning.
@@ -7,18 +14,20 @@ import { useState, useRef, useEffect, Dispatch, SetStateAction, useCallback } fr
  * @param initialState
  * @returns
  */
-export function useSafeState<S>(initialState: S | (() => S)): [S, Dispatch<SetStateAction<S>>] {
+export function useSafeState<S>(
+  initialState: S | (() => S)
+): [S, Dispatch<SetStateAction<S>>] {
   const [state, setState] = useState(initialState);
 
-  // 判断 React 是否正在渲染，在渲染期间不能直接调用 setState
+  // To determine whether React is currently rendering, you cannot directly call setState during rendering.
   const renderingRef = useRef(true);
   renderingRef.current = true;
 
-  // 暂存在 React 渲染期间需要调用 setState 的更新操作，在 render 结束后再依次执行 setState
+  // If you have to perform updates with setState that need to be temporarily stored during React rendering, you can execute them after rendering has finished, in the order they were queued.
   const updatesRef = useRef<Array<() => void>>([]);
 
   useEffect(() => {
-    // useEffect 回调调用时可认为完成 rendering
+    // You can consider the execution of the useEffect callback as the completion of rendering.
     renderingRef.current = false;
 
     const updates = updatesRef.current;
@@ -34,15 +43,18 @@ export function useSafeState<S>(initialState: S | (() => S)): [S, Dispatch<SetSt
     }
   });
 
-  const setSafeState: Dispatch<SetStateAction<S>> = useCallback((elements: SetStateAction<S>): void => {
-    if (renderingRef.current) {
-      updatesRef.current.push(() => {
+  const setSafeState: Dispatch<SetStateAction<S>> = useCallback(
+    (elements: SetStateAction<S>): void => {
+      if (renderingRef.current) {
+        updatesRef.current.push(() => {
+          setState(elements);
+        });
+      } else {
         setState(elements);
-      });
-    } else {
-      setState(elements);
-    }
-  }, []);
+      }
+    },
+    []
+  );
 
   return [state, setSafeState];
 }

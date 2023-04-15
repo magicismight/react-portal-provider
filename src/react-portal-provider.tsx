@@ -38,39 +38,29 @@ export interface PortalProviderProps {
   children: ReactNode;
 }
 
-// Clone element and add a unique key prop in current state.
-function cloneWithKey(element: ReactElement, id: number): ReactElement {
-  return cloneElement(element, {
-    key: `portal-element-${id}`
-  });
-}
-
 export function createPortalProvider(
   PortalContext: Context<PortalContextModel>
 ): ComponentType<PortalProviderProps> {
   return function PortalProvider(props: PortalProviderProps): ReactElement {
     const { children } = props;
-
     const [elements, setElements] = useSafeState<ReactElement[]>([]);
 
-    // 需要使用 ref 维护 elements 数组中的元素 key
-    // 传入的 element 都没有 key props，在数组中极可能出现串元素的情况，
-    // 每次 create 生成和 update 的元素需要在当前 provider 中具有唯一的 key
+    // To ensure that each element in the array has a unique key, it is necessary to use a ref to maintain the key of the elements.
+    // The elements passed into the array do not have key props, which may result in the appearance of consecutive elements in the array.
+    // Therefore, every element that is created or updated needs to have a unique key within the current provider.
     const idRef = useRef(0);
 
     const create = useCallback((element: ReactElement) => {
       const id = idRef.current++;
-
-      // Keep track current element state.
       let current: ReactElement | null = null;
 
       setElements((state) => {
         const array = state.slice();
-
-        const cloned = cloneWithKey(element, id);
+        const cloned = cloneElement(element, {
+          key: id
+        });
 
         current = cloned;
-
         array.push(cloned);
 
         return array;
@@ -80,22 +70,17 @@ export function createPortalProvider(
         update(nextElement: ReactElement): void {
           setElements((state) => {
             const array = state.slice();
-            const cloned = cloneWithKey(nextElement, id);
-
-            // Find current element in array.
+            const cloned = cloneElement(nextElement, {
+              key: id
+            });
             const index = current ? array.indexOf(current) : -1;
 
             if (index > -1) {
-              // Replace with new element in array.
               array.splice(index, 1, cloned);
-
-              // Update current element.
               current = cloned;
-
               return array;
             } else {
-              current = null;
-              // Couldn't update an unmounted element.
+              // unmounted
               return state;
             }
           });
@@ -103,20 +88,13 @@ export function createPortalProvider(
         unmount(): void {
           setElements((state) => {
             const array = state.slice();
-
-            // Find current element in array.
             const index = current ? array.indexOf(current) : -1;
 
             if (index > -1) {
-              // Remove from array.
               array.splice(index, 1);
-
-              // Free current element state.
               current = null;
               return array;
             } else {
-              current = null;
-              // This element had been unmounted.
               return state;
             }
           });
@@ -125,7 +103,6 @@ export function createPortalProvider(
     }, []);
 
     const clear = useCallback(() => {
-      // Clear all elements from state.
       setElements([]);
     }, []);
 
@@ -139,7 +116,7 @@ export function createPortalProvider(
     return (
       <PortalContext.Provider value={value}>
         {children}
-        {/* Only render last element in state. */ elements[elements.length - 1]}
+        {elements[elements.length - 1]}
       </PortalContext.Provider>
     );
   };

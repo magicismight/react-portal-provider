@@ -1,16 +1,28 @@
 {
   "name": "react-portal-provider",
-  "version": "0.0.0",
-  "private": true,
-  "description": "A quick starter template for typescript project",
+  "version": "1.0.0",
+  "description": "A Portal component that can be used in all React projects.",
+  "main": "dist/lib/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/lib/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "react",
+    "portal",
+    "z-index",
+    "position",
+    "fixed"
+  ],
   "scripts": {
     "test": "jest --coverage",
     "lint": "eslint ./src --ext .ts",
-    "build": "run-p test clean lint && run-p build:cjs build:esm",
+    "build": "yarn && run-p test clean lint && run-p build:cjs build:esm",
     "build:cjs": "tsc --module commonjs --declaration --outDir ./dist/lib",
     "build:esm": "tsc --module esnext --declaration --outDir ./dist/esm",
-    "prepublishOnly": "npm run build",
-    "clean": "find ./dist -depth 1 ! -name package.json ! -name README.md  | xargs rm -rf"
+    "release": "run-p build && yarn publish",
+    "clean": "rm -r dist/*"
   },
   "license": "ISC",
   "devDependencies": {

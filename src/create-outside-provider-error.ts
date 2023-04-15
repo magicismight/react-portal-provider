@@ -1,6 +1,6 @@
 /**
- * 提供给 createContext 初始化属性时使用，
- * 任何 Context 都不应在 Provider 之外使用
+ * Context should only be used within a Provider.
+ * If you attempt to use the default value of a Context, you should get an error.
  *
  * @export
  * @param {string} context

@@ -82,17 +82,17 @@ describe('PortalProvider', () => {
       });
 
       const modal = createPortal(<Component />);
-      // 这里不能用 waitForNextUpdate，因为 createPortal 不会导致当前 hook 所在组件 rerender
+      // Since createPortal doesn't trigger a rerender of the component where the hook is being used, we cannot use waitForNextUpdate here.
       await flushPromises();
 
-      // 首次渲染
+      // mount
       expect(state).toEqual({
         mounted: true,
         unmounted: false,
         renderCount: 1
       });
 
-      // 更新
+      // update
       modal.update(<Component />);
       await flushPromises();
 
@@ -102,7 +102,7 @@ describe('PortalProvider', () => {
         renderCount: 2
       });
 
-      // 卸载
+      // unmount
       modal.unmount();
       await flushPromises();
 
@@ -138,7 +138,7 @@ describe('PortalProvider', () => {
         renderCount: 1
       });
 
-      // modal2 unmount 之后 modal1 会重新 mount
+      // After modal2 is unmounted, modal1 will be remounted.
       modal2.unmount();
       await flushPromises();
     });
@@ -169,28 +169,28 @@ describe('PortalProvider', () => {
       const modal3 = createPortal(<Portal3 />);
       await flushPromises();
 
-      // 首先先把 modal1 unmount 了，由于前面 modal1 和 modal2 都没有被 mount，
-      // 所以这里只需要关注 modal3 的状态，
-      // modal1 的 unmount 不会影响 modal3 的状态
+      // First, unmount modal1. Since neither modal1 nor modal2 have been mounted yet,
+      // we only need to focus on the state of modal3.
+      // Unmounting modal1 will not affect the state of modal3.
       modal1.unmount();
       await flushPromises();
       expect(state3.mounted).toBeTruthy();
       expect(state3.unmounted).toBeFalsy();
 
-      // 删除 modal1，元素位置变更后再对 modal2 进行更新，不会影响到 modal3
+      // Unmounting modal1 and then updating modal2 after the position of the elements has changed will not affect modal3.
       modal2.update(<Portal2 />);
       await flushPromises();
       expect(state3.renderCount).toBe(1);
 
-      // 随后再 unmount modal3 ，目前只剩下 modal2 还留在界面上,
-      // 随后状态变为 modal3 被 unmount，modal2 mount
+      // Then, unmount modal3. At this point, only modal2 remains on the screen.
+      // The state then changes to show that modal3 has been unmounted and modal2 has been mounted.
       modal3.unmount();
       await flushPromises();
       expect(state2.mounted).toBeTruthy();
       expect(state2.unmounted).toBeFalsy();
       expect(state3.unmounted).toBeTruthy();
 
-      // unmount 所有 modal
+      // Unmount all modals
       modal2.unmount();
       await flushPromises();
       expect(state2.unmounted).toBeTruthy();
@@ -243,7 +243,7 @@ describe('PortalProvider', () => {
       await flushPromises();
       modal.unmount();
 
-      // unmount 之后的任何操作都不会生效
+      // Any operation after unmounting will not take effect.
       modal.update(<Component />);
       await flushPromises();
 
